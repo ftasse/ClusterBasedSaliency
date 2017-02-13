@@ -1,0 +1,31 @@
+cmake_minimum_required(VERSION 2.8.11)
+
+project(shape3d_keypoints)
+
+set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}")
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+find_package(PCL 1.7 REQUIRED COMPONENTS common io features surface visualization segmentation keypoints)
+include_directories(${PCL_INCLUDE_DIRS})
+link_directories(${PCL_LIBRARY_DIRS})
+if (MSVC)
+	string(REGEX REPLACE " /arch:SSE[0-9]?" "" PCL_DEFINITIONS "${PCL_DEFINITIONS}")
+endif()
+add_definitions(${PCL_DEFINITIONS})
+
+find_package(CGAL QUIET  COMPONENTS Core)
+if (CGAL_FOUND)
+	 if (MSVC)
+	 	set(CGAL_Boost_USE_STATIC_LIBS ${Boost_USE_STATIC_LIBS})
+	 endif()
+	 add_definitions(-DCGAL_LIB_EXISTS)
+	 add_definitions(-DCGAL_USE_F2C)
+	 include(${CGAL_USE_FILE})
+endif()
+
+add_subdirectory(display)
+add_subdirectory(io)
+add_subdirectory(features)
+add_subdirectory(utils)
+include_directories(${CMAKE_SOURCE_DIR}/display/extern)
+add_subdirectory(apps)
